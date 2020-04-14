@@ -1,0 +1,43 @@
+{
+  "name": "hawkeye-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yravinderkumar33/hawkeye-server.git"
+  },
+  "engines": {
+    "node": ">=7.8.0"
+  },
+  "keywords": [
+    "sunbird",
+    "hawkeye",
+    "plugins",
+    "reports",
+    "dashboard"
+  ],
+  "author": "ravinder kumar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yravinderkumar33/hawkeye-server/issues"
+  },
+  "homepage": "https://github.com/yravinderkumar33/hawkeye-server#readme",
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "body-parser": "^1.19.0",
+    "dateformat": "^3.0.3",
+    "express": "^4.17.1",
+    "express-promise-router": "^3.0.3",
+    "lodash": "^4.17.15",
+    "pg": "^8.0.0",
+    "uuid": "^7.0.3"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0"
+  }
+}
