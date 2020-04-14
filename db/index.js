@@ -1,14 +1,12 @@
 const { Pool } = require('pg');
 const { envVariables } = require('../helpers');
 
-// post is not required
-// port: envVariables.DB.PORT
-
 const pool = new Pool({
   host: envVariables.DB.HOST,
   database: envVariables.DB.NAME,
   password: envVariables.DB.PASSWORD,
-  user: envVariables.DB.USER
+  user: envVariables.DB.USER,
+  port: envVariables.DB.PORT
 })
 
 module.exports = {
