@@ -2,7 +2,6 @@ const Joi = require("@hapi/joi");
 const { sendApiResponse, constants } = require('../../helpers');
 const _ = require('lodash');
 
-
 const getBadRequestResponse = ({ id, error }) => sendApiResponse({ id, responseCode: constants.RESPONSE_CODE.CLIENT_ERROR, params: { status: constants.STATUS.FAILED, errmsg: error.details.map(d => d.message), err: constants.RESPONSE_CODE.BAD_REQUEST } });
 
 const reportRequestValidator = {

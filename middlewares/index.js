@@ -1,6 +1,8 @@
-const { validateCreateReportAPI, validateReadReportAPI, validateDeleteReportAPI, validateListReportAPI, validateUpdateReportAPI } = require('./validators/validateReport');
+const reportValidators = require('./validators/validateReport');
+const summaryValidators = require('./validators/validateSummary');
 const { customErrorHandler } = require('./errorHandlers/customErrorHandler');
 const { asyncErrorHandler } = require('./errorHandlers/asyncErrorHandler');
+
 module.exports = {
-    asyncErrorHandler, customErrorHandler, validateCreateReportAPI, validateReadReportAPI, validateDeleteReportAPI, validateListReportAPI, validateUpdateReportAPI
+    ...summaryValidators, asyncErrorHandler, customErrorHandler, ...reportValidators
 }
