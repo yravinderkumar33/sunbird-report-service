@@ -71,3 +71,44 @@ router.post("/create",
         );
     }));
 
+router.get("/:reportid",
+    asyncErrorHandler(async (req, res, next) => {
+        const id = _.get(req, "id") || "api.report.summary.get";
+        const { rows, rowCount } = await db.query(
+            `SELECT * FROM ${SUMMARY_TABLE_NAME} WHERE reportid = $1 AND chartid IS NULL ORDER BY createdon DESC LIMIT 1`,
+            [req.params.reportid]
+        );
+        const result = {
+            summaries: rows,
+            count: rowCount,
+        };
+        res.status(200).send(
+            sendApiResponse({
+                id,
+                responseCode: constants.RESPONSE_CODE.SUCCESS,
+                result,
+                params: {},
+            })
+        );
+    }))
+
+router.get("/:reportid/:chartid",
+    asyncErrorHandler(async (req, res, next) => {
+        const id = _.get(req, "id") || "api.report.summary.get";
+        const { rows, rowCount } = await db.query(
+            `SELECT * FROM ${SUMMARY_TABLE_NAME} WHERE reportid = $1 AND chartid = $2 ORDER BY createdon DESC LIMIT 1`,
+            [req.params.reportid, req.params.chartid]
+        );
+        const result = {
+            summaries: rows,
+            count: rowCount,
+        };
+        res.status(200).send(
+            sendApiResponse({
+                id,
+                responseCode: constants.RESPONSE_CODE.SUCCESS,
+                result,
+                params: {},
+            })
+        );
+    }))
