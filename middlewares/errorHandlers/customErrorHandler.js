@@ -2,7 +2,7 @@ const { sendApiResponse, constants } = require('../../helpers');
 
 const customErrorHandler = (err, req, res, next) => {
     const { statusCode = 500, message = message, err: error = null } = err;
-    console.log(JSON.stringify(err));
+  
     res.status(statusCode).send(
         sendApiResponse({
             id: req.id || 'api.report',
