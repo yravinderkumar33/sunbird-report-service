@@ -6,7 +6,7 @@ const getBadRequestResponse = ({ id, error }) => sendApiResponse({ id, responseC
 
 const reportRequestValidator = {
     validateCreateReportAPI(req, res, next) {
-        const id = (req.id = "api.report.create");
+        const id = req.id;
         const schema = Joi.object({
             request: Joi.object({
                 report: Joi.object({
@@ -44,7 +44,7 @@ const reportRequestValidator = {
         }
     },
     validateReadReportAPI(req, res, next) {
-        const id = (req.id = "api.report.read");
+        const id = req.id;
         const schema = Joi.object({
             reportId: Joi.string().required(),
         });
@@ -56,7 +56,7 @@ const reportRequestValidator = {
         }
     },
     validateUpdateReportAPI(req, res, next) {
-        const id = (req.id = "api.report.update");
+        const id = req.id;
         const schema = Joi.object({
             request: Joi.object({
                 report: Joi.object({
@@ -93,7 +93,7 @@ const reportRequestValidator = {
         }
     },
     validateDeleteReportAPI(req, res, next) {
-        const id = (req.id = "api.report.delete");
+        const id = req.id;
         const schema = Joi.object({
             reportId: Joi.string().required(),
         });
@@ -105,7 +105,7 @@ const reportRequestValidator = {
         }
     },
     validateListReportAPI(req, res, next) {
-        const id = (req.id = "api.report.list");
+        const id = req.id;
         const schema = Joi.object({
             request: Joi.object({
                 filters: Joi.object({

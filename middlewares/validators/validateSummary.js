@@ -6,7 +6,7 @@ const getBadRequestResponse = ({ id, error }) => sendApiResponse({ id, responseC
 
 const summaryValidator = {
     validateCreateSummaryAPI(req, res, next) {
-        const id = (req.id = "api.report.summary.create");
+        const id = req.id;
         const schema = Joi.object({
             request: Joi.object({
                 summary: Joi.object({
@@ -25,7 +25,7 @@ const summaryValidator = {
         }
     },
     validateListSummaryAPI(req, res, next) {
-        const id = (req.id = "api.report.summary.list");
+        const id = req.id;
         const schema = Joi.object({
             request: Joi.object({
                 filters: Joi.object({
