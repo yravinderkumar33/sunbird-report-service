@@ -10,7 +10,7 @@ const SUMMARY_TABLE_NAME = _.get(envVariables, 'SUMMARY_TABLE_NAME');
  */
 const listSummaries = asyncErrorHandler(async (req, res, next) => {
 
-    const id = _.get(req, "id") || "api.report.summary.list";
+    const id = _.get(req, "id");
     const filters = _.get(req, "body.request.filters") || {};
     const whereClause = _.keys(filters).length
         ? `WHERE ${_.join(
@@ -43,7 +43,7 @@ const listSummaries = asyncErrorHandler(async (req, res, next) => {
  */
 const createSummary = asyncErrorHandler(async (req, res, next) => {
     const reqBody = _.get(req, "body.request.summary");
-    const id = _.get(req, "id") || "api.report.summary.create";
+    const id = _.get(req, "id");
     const summaryId = v4();
     const body = { id: summaryId, ...reqBody };
     const query = `INSERT INTO ${SUMMARY_TABLE_NAME} (${_.join(
@@ -71,7 +71,7 @@ const createSummary = asyncErrorHandler(async (req, res, next) => {
  * @description This controller method is used to fetch the latest report summary
  */
 const getReportSummary = asyncErrorHandler(async (req, res, next) => {
-    const id = _.get(req, "id") || "api.report.summary.get";
+    const id = _.get(req, "id");
     const { rows, rowCount } = await db.query(
         `SELECT * FROM ${SUMMARY_TABLE_NAME} WHERE reportid = $1 AND chartid IS NULL ORDER BY createdon DESC LIMIT 1`,
         [req.params.reportid]
@@ -94,7 +94,7 @@ const getReportSummary = asyncErrorHandler(async (req, res, next) => {
  * @description This controller method is used to fetch the latest chart summary within a report
  */
 const getChartSummary = asyncErrorHandler(async (req, res, next) => {
-    const id = _.get(req, "id") || "api.report.summary.get";
+    const id = _.get(req, "id");
     const { rows, rowCount } = await db.query(
         `SELECT * FROM ${SUMMARY_TABLE_NAME} WHERE reportid = $1 AND chartid = $2 ORDER BY createdon DESC LIMIT 1`,
         [req.params.reportid, req.params.chartid]

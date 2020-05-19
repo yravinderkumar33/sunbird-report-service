@@ -12,7 +12,7 @@ const REPORT_TABLE_NAME = _.get(envVariables, 'TABLE_NAME');
  */
 const readReport = asyncErrorHandler(async (req, res, next) => {
     const { reportId } = _.get(req, "params");
-    const id = _.get(req, "id") || "api.report.get";
+    const id = _.get(req, "id");
     const {
         rows,
         rowCount,
@@ -43,7 +43,7 @@ const readReport = asyncErrorHandler(async (req, res, next) => {
  */
 const createReport = asyncErrorHandler(async (req, res, next) => {
     const reqBody = _.get(req, "body.request.report");
-    const id = _.get(req, "id") || "api.report.create";
+    const id = _.get(req, "id");
 
     const reportid = _.get(reqBody, "reportid") || v4();
     const reportaccessurl =
@@ -76,7 +76,7 @@ const createReport = asyncErrorHandler(async (req, res, next) => {
  * @description This controller method is used to delete an existing report
  */
 const deleteReport = asyncErrorHandler(async (req, res, next) => {
-    const id = _.get(req, "id") || "api.report.delete";
+    const id = _.get(req, "id");
     const { reportId } = _.get(req, "params");
 
     const {
@@ -107,7 +107,7 @@ const deleteReport = asyncErrorHandler(async (req, res, next) => {
  * @description This controller method is used to update an existing report
  */
 const updateReport = asyncErrorHandler(async (req, res, next) => {
-    const id = _.get(req, "id") || "api.report.update";
+    const id = _.get(req, "id");
     const { reportId } = _.get(req, "params");
     const reqBody = _.get(req, "body.request.report");
 
@@ -150,7 +150,7 @@ const updateReport = asyncErrorHandler(async (req, res, next) => {
  * @description This controller method is used to list all the reports in the system
  */
 const listReports = asyncErrorHandler(async (req, res, next) => {
-    const id = _.get(req, "id") || "api.report.list";
+    const id = _.get(req, "id");
     const filters = _.get(req, "body.request.filters") || {};
     const whereClause = _.keys(filters).length
         ? `WHERE ${_.join(
@@ -182,6 +182,31 @@ const listReports = asyncErrorHandler(async (req, res, next) => {
     );
 });
 
+/**
+ * @description publish a report as live
+ */
+const publishOrRetireReport = (status) => asyncErrorHandler(async (req, res, next) => {
+    const id = _.get(req, 'id');
+    const { reportId } = req.params;
+    const query = `UPDATE ${REPORT_TABLE_NAME} SET status = $1 where reportid = $2`;
+    const { rows, rowCount } = await db.query(query, [status, reportId]);
+    if (rowCount > 0) {
+        const result = {
+            reportId,
+        };
+        res.status(200).send(
+            sendApiResponse({
+                id,
+                responseCode: constants.RESPONSE_CODE.SUCCESS,
+                result,
+                params: {},
+            })
+        );
+    } else {
+        next(new ErrorResponse(constants.MESSAGES.NO_REPORT, 404));
+    }
+});
+
 module.exports = {
-    readReport, updateReport, listReports, deleteReport, createReport
+    readReport, updateReport, listReports, deleteReport, createReport, publishOrRetireReport
 }
