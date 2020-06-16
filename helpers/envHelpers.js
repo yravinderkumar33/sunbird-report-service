@@ -16,7 +16,11 @@ const envVariables = {
     BASE_REPORT_URL: get(env, 'SUNBIRD_BASE_REPORT_URL') || 'report',
     TABLE_NAME: get(env, 'SUNBIRD_REPORTS_TABLE_NAME') || 'report',
     SUMMARY_TABLE_NAME: get(env, 'SUNBIRD_REPORT_SUMMARY_TABLE_NAME') || 'report_summary',
-    ENV: get(env, 'SUNBIRD_ENV') || 'https://dev.sunbirded.org'
+    ENV: get(env, 'SUNBIRD_ENV') || 'https://dev.sunbirded.org',
+    DEACTIVATE_JOB_API: {
+        HOST: get(env, 'DEACTIVATE_JOB_API_HOST') || '',
+        KEY: `Bearer ${get(env, 'DEACTIVATE_JOB_API_KEY')}`
+    }
 }
 
 module.exports = { envVariables, packageObj };
