@@ -16,6 +16,7 @@ const envVariables = {
     BASE_REPORT_URL: get(env, 'SUNBIRD_BASE_REPORT_URL') || 'report',
     TABLE_NAME: get(env, 'SUNBIRD_REPORTS_TABLE_NAME') || 'report',
     SUMMARY_TABLE_NAME: get(env, 'SUNBIRD_REPORT_SUMMARY_TABLE_NAME') || 'report_summary',
+    REPORT_STATUS_TABLE_NAME: get(env, 'SUNBIRD_REPORT_STATUS_TABLE_NAME') || 'report_status',
     ENV: get(env, 'SUNBIRD_ENV') || 'https://dev.sunbirded.org',
     DEACTIVATE_JOB_API: {
         HOST: get(env, 'DEACTIVATE_JOB_API_HOST') || '',

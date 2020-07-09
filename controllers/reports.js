@@ -6,21 +6,40 @@ const dateFormat = require('dateformat');
 const { ErrorResponse } = require('../utils/errorResponse');
 const { asyncErrorHandler } = require('../middlewares');
 const REPORT_TABLE_NAME = _.get(envVariables, 'TABLE_NAME');
+const REPORT_STATUE_TABLE_NAME = _.get(envVariables, 'REPORT_STATUS_TABLE_NAME');
 const axios = require('axios');
 
 /**
  * @description Fetches a report by report id
  */
 const readReport = asyncErrorHandler(async (req, res, next) => {
-    const { reportId } = _.get(req, "params");
-    const {
+    const { reportId, hash } = _.get(req, "params");
+
+    let query = `SELECT ${REPORT_TABLE_NAME}.*, to_json(array_remove(array_agg(${REPORT_STATUE_TABLE_NAME}), NULL)) AS children FROM ${REPORT_TABLE_NAME}
+    LEFT JOIN ${REPORT_STATUE_TABLE_NAME} ON ${REPORT_TABLE_NAME}.reportid = ${REPORT_STATUE_TABLE_NAME}.reportid WHERE ${REPORT_TABLE_NAME}.reportid = '${reportId}' GROUP BY ${REPORT_TABLE_NAME}.reportid`
+
+    if (hash) {
+        query = `SELECT ${REPORT_TABLE_NAME}.*, to_json(array_remove(array_agg(${REPORT_STATUE_TABLE_NAME}), NULL)) AS children FROM ${REPORT_TABLE_NAME}
+        LEFT JOIN ${REPORT_STATUE_TABLE_NAME} ON ${REPORT_TABLE_NAME}.reportid = ${REPORT_STATUE_TABLE_NAME}.reportid WHERE ${REPORT_TABLE_NAME}.reportid = '${reportId}' AND
+         ${REPORT_STATUE_TABLE_NAME}.hashed_val = '${hash}'  GROUP BY ${REPORT_TABLE_NAME}.reportid`
+    }
+
+    let {
         rows,
         rowCount,
-    } = await db.query(
-        `SELECT * FROM ${REPORT_TABLE_NAME} WHERE reportId = $1`,
-        [reportId]
-    );
+    } = await db.query(query);
     if (rowCount > 0) {
+
+        if (hash) {
+            rows = _.map(rows, row => {
+                if (_.get(row, 'children') && _.get(row, 'children.length')) {
+                    const reportWithoutChildren = _.omit(row, 'children');
+                    return _.assign(reportWithoutChildren, _.omit(row.children[0], ['id', 'reportid']));
+                }
+                return row;
+            });
+        }
+
         const result = {
             reports: rows,
             count: rowCount,
@@ -30,6 +49,7 @@ const readReport = asyncErrorHandler(async (req, res, next) => {
             result,
             statusCode: 200
         };
+
         next();
 
     } else {
@@ -70,18 +90,25 @@ const createReport = asyncErrorHandler(async (req, res, next) => {
 
 /**
  * @description This controller method is used to delete an existing report
+ * delete cascade effect is set on status table.
  */
 const deleteReport = asyncErrorHandler(async (req, res, next) => {
 
-    const { reportId } = _.get(req, "params");
+    const { reportId, hash } = _.get(req, "params");
+
+    let query = `DELETE FROM ${REPORT_TABLE_NAME} WHERE reportId = '${reportId}'`;
+
+    if (hash) {
+        query = `DELETE FROM ${REPORT_STATUE_TABLE_NAME} WHERE reportId = '${reportId}' AND hashed_val = '${hash}'`;
+    }
+
     const {
         rows,
         rowCount,
-    } = await db.query(
-        `DELETE FROM ${REPORT_TABLE_NAME} WHERE reportId = $1`,
-        [reportId]
-    );
+    } = await db.query(query);
+
     if (rowCount > 0) {
+
         const result = {
             reportId,
         };
@@ -149,7 +176,7 @@ const listReports = asyncErrorHandler(async (req, res, next) => {
             _.map(
                 filters,
                 (value, key) =>
-                    `${key} IN (${_.join(
+                    `${REPORT_TABLE_NAME}.${key} IN (${_.join(
                         _.map(value, (val) => `'${val}'`),
                         ", "
                     )})`
@@ -158,7 +185,10 @@ const listReports = asyncErrorHandler(async (req, res, next) => {
         )}`
         : "";
 
-    const query = `SELECT * FROM ${REPORT_TABLE_NAME} ${whereClause}`;
+    const query = `SELECT ${REPORT_TABLE_NAME}.*, to_json(array_remove(array_agg(${REPORT_STATUE_TABLE_NAME}), NULL)) AS children FROM ${REPORT_TABLE_NAME}
+
+    LEFT JOIN ${REPORT_STATUE_TABLE_NAME} ON ${REPORT_TABLE_NAME}.reportid = ${REPORT_STATUE_TABLE_NAME}.reportid ${whereClause} GROUP BY ${REPORT_TABLE_NAME}.reportid`
+
     const { rows, rowCount } = await db.query(query);
     const result = {
         reports: rows,
@@ -170,7 +200,6 @@ const listReports = asyncErrorHandler(async (req, res, next) => {
         statusCode: 200
     };
     next();
-
 });
 
 /**
@@ -225,9 +254,9 @@ const deactivateAllJobsForReport = async jobIds => {
  */
 const publishOrRetireReport = (status) => asyncErrorHandler(async (req, res, next) => {
 
-    const { reportId } = req.params;
+    const { reportId, hash } = req.params;
 
-    if (status === 'retired') {
+    if (status === 'retired' && !hash) {
         const reportConfig = _.get(req, 'responseObj.result.reports[0].reportconfig');
         if (reportConfig) {
             const jobIds = getJobIds(reportConfig);
@@ -240,13 +269,28 @@ const publishOrRetireReport = (status) => asyncErrorHandler(async (req, res, nex
         }
     }
 
-    const query = `UPDATE ${REPORT_TABLE_NAME} SET status = $1 where reportid = $2`;
-    const { rows, rowCount } = await db.query(query, [status, reportId]);
+    let query = `UPDATE ${REPORT_TABLE_NAME} SET status = '${status}' where reportid = '${reportId}'`;
+
+    if (hash) {
+
+        let selectQuery = `SELECT * FROM ${REPORT_STATUE_TABLE_NAME} WHERE reportId = '${reportId}' AND hashed_val = '${hash}'`;
+
+        const { rowCount } = await db.query(selectQuery);
+
+        if (rowCount > 0) {
+            query = `UPDATE ${REPORT_STATUE_TABLE_NAME} SET status = '${status}' where reportid = '${reportId}' AND hashed_val = '${hash}'`;
+        } else {
+            query = `INSERT into ${REPORT_STATUE_TABLE_NAME}(reportid, status, hashed_val) VALUES( '${reportId}', '${status}', '${hash}')`;
+        }
+    }
+
+    const { rowCount } = await db.query(query);
 
     if (rowCount > 0) {
 
         const result = {
             reportId,
+            ...(hash && { parameter_hash: hash })
         };
 
         req.responseObj = {

@@ -16,6 +16,14 @@ router.get(
     sendResponse
 );
 
+router.get(
+    "/get/:reportId/:hash",
+    setApiResponseId("api.report.read"),
+    validateReadReportAPI,
+    readReport,
+    sendResponse
+);
+
 router.post(
     "/create",
     setApiResponseId("api.report.create"),
@@ -26,6 +34,14 @@ router.post(
 
 router.delete(
     "/delete/:reportId",
+    setApiResponseId("api.report.delete"),
+    validateDeleteReportAPI,
+    deleteReport,
+    sendResponse
+);
+
+router.delete(
+    "/delete/:reportId/:hash",
     setApiResponseId("api.report.delete"),
     validateDeleteReportAPI,
     deleteReport,
@@ -54,9 +70,23 @@ router.get(
 )
 
 router.get(
+    "/publish/:reportId/:hash",
+    setApiResponseId('api.report.publish'),
+    publishOrRetireReport('live'),
+    sendResponse
+)
+
+router.get(
     "/retire/:reportId",
     setApiResponseId('api.report.retire'),
     readReport,
+    publishOrRetireReport('retired'),
+    sendResponse
+)
+
+router.get(
+    "/retire/:reportId/:hash",
+    setApiResponseId('api.report.retire'),
     publishOrRetireReport('retired'),
     sendResponse
 )
