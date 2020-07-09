@@ -33,6 +33,7 @@ const reportRequestValidator = {
                         startdate: Joi.string().required(),
                         enddate: Joi.string().required(),
                     }).required(),
+                    parameters: Joi.array().items(Joi.string()).optional()
                 }).required(),
             }).required(),
         });
@@ -82,6 +83,7 @@ const reportRequestValidator = {
                         startdate: Joi.string().required(),
                         enddate: Joi.string().required(),
                     }).optional(),
+                    parameters: Joi.array().items(Joi.string()).optional()
                 }).required(),
             }).required(),
         });

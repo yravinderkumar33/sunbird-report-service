@@ -13,7 +13,8 @@ const summaryValidator = {
                     reportid: Joi.string().required(),
                     createdby: Joi.string().required(),
                     chartid: Joi.string().optional(),
-                    summary: Joi.string().required()
+                    summary: Joi.string().required(),
+                    param_hash: Joi.string().optional()
                 }).required(),
             }).required(),
         });
