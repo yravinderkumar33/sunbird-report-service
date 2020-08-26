@@ -19,7 +19,8 @@ const reportRequestValidator = {
                     createdon: Joi.string().optional(),
                     updatedon: Joi.string().optional(),
                     createdby: Joi.string().required(),
-                    type: Joi.string().valid("private", "public").required(),
+                    visibility: Joi.string().valid("public", "private").required(),
+                    type: Joi.string().valid("report", "dataset").required(),
                     status: Joi.string()
                         .valid("draft")
                         .trim()
@@ -69,7 +70,8 @@ const reportRequestValidator = {
                     createdon: Joi.string().optional(),
                     updatedon: Joi.string().optional(),
                     createdby: Joi.string().optional(),
-                    type: Joi.string().valid("private", "public").optional(),
+                    visibility: Joi.string().valid("public", "private").optional(),
+                    type: Joi.string().valid("report", "dataset").optional(),
                     status: Joi.string()
                         .valid("live", "draft", "retired")
                         .trim()
@@ -113,7 +115,7 @@ const reportRequestValidator = {
                 filters: Joi.object({
                     slug: Joi.array().items(Joi.string()).optional(),
                     type: Joi.array()
-                        .items(Joi.string().valid("public", "private"))
+                        .items(Joi.string().valid("report", "dataset"))
                         .optional(),
                     status: Joi.array()
                         .items(Joi.string().valid("live", "retired", "draft"))
